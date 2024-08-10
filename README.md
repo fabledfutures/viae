@@ -4,6 +4,8 @@ This is our custom fork of [Pocketbase](https://github.com/pocketbase/pocketbase
 We do not build binaries of this repo. If you are looking for an off-the-shelf backend as a service, go check out [Pocketbase](https://github.com/pocketbase/pocketbase). 
 Be sure to show [Gani Georgiev](https://github.com/ganigeorgiev) some love for the AMAZING work he has done!
 
+**While [Pocketbase](https://github.com/pocketbase/pocketbase) is still pre-v1, most of our changes are minimal. We have planned changes that we will start to impliment once [Pocketbase](https://github.com/pocketbase/pocketbase) is in a stable v1.**
+
 
 While [Pocketbase](https://github.com/pocketbase/pocketbase) is intended to be an entire backend solution, VIAE is intended to just be the API layer of the backend, providing primarily CRUD, AUTH, and RPC. (https://github.com/pocketbase/pocketbase) team. 
 
@@ -12,6 +14,7 @@ VIAE differs from [Pocketbase](https://github.com/pocketbase/pocketbase) in the 
 - VIAE is inteded to be used with a managed, scalable database like PostgreSQL. [Pocketbase](https://github.com/pocketbase/pocketbase) uses an embedded SQLite. In reality MOST simple web and mobile apps do not need more than SQLite. However our applications rely heavily on the scale and analytical capabilities of systems like PostgreSQL. 
 - VIAE is purely a Go framework for building custom API layers on the backend. It is not a complete solution. For apps that just need AUTH and CRUD, [Pocketbase](https://github.com/pocketbase/pocketbase) is going to be more than enough. [Pocketbase](https://github.com/pocketbase/pocketbase) already allows you to add custom routes and jobs too! We are simply configuring VIAE to be the CRUD and AUTH parts of the API layer so that we can focus on the services that go along with the API to power our applications.
 - VIAE will expand the dashboard UI with more features that let application owners assess the security of their applicaiton, the nature of the usrs, and configuring caches and databases that can be deployed alongside VIAE.
+- VIAE is being configured to scale out, by allowing multiple instances to be used behing a load balancer. This is only possible by moving to an external database and changing some configurations. 
 
 **For documentation and examples of working with the API, please visit https://pocketbase.io/docs.**
 
