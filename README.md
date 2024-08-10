@@ -1,166 +1,42 @@
-<p align="center">
-    <a href="https://pocketbase.io" target="_blank" rel="noopener">
-        <img src="https://i.imgur.com/5qimnm5.png" alt="PocketBase - open source backend in 1 file" />
-    </a>
-</p>
+# Welcome to VIAE!
 
-<p align="center">
-    <a href="https://github.com/pocketbase/pocketbase/actions/workflows/release.yaml" target="_blank" rel="noopener"><img src="https://github.com/pocketbase/pocketbase/actions/workflows/release.yaml/badge.svg" alt="build" /></a>
-    <a href="https://github.com/pocketbase/pocketbase/releases" target="_blank" rel="noopener"><img src="https://img.shields.io/github/release/pocketbase/pocketbase.svg" alt="Latest releases" /></a>
-    <a href="https://pkg.go.dev/github.com/pocketbase/pocketbase" target="_blank" rel="noopener"><img src="https://godoc.org/github.com/pocketbase/pocketbase?status.svg" alt="Go package documentation" /></a>
-</p>
+This is our custom fork of [Pocketbase](https://github.com/pocketbase/pocketbase). We are customizing and extending Pocketbase to better fit our needs. 
+We do not build binaries of this repo. If you are looking for an off-the-shelf backend as a service, go check out [Pocketbase](https://github.com/pocketbase/pocketbase). 
+Be sure to show [Gani Georgiev](https://github.com/ganigeorgiev) some love for the AMAZING work he has done!
 
-[PocketBase](https://pocketbase.io) is an open source Go backend, consisting of:
 
-- embedded database (_SQLite_) with **realtime subscriptions**
-- built-in **files and users management**
-- convenient **Admin dashboard UI**
-- and simple **REST-ish API**
+While [Pocketbase](https://github.com/pocketbase/pocketbase) is intended to be an entire backend solution, VIAE is intended to just be the API layer of the backend, providing primarily CRUD, AUTH, and RPC. (https://github.com/pocketbase/pocketbase) team. 
 
-**For documentation and examples, please visit https://pocketbase.io/docs.**
+VIAE differs from [Pocketbase](https://github.com/pocketbase/pocketbase) in the following major ways:
+
+- VIAE is inteded to be used with a managed, scalable database like PostgreSQL. [Pocketbase](https://github.com/pocketbase/pocketbase) uses an embedded SQLite. In reality MOST simple web and mobile apps do not need more than SQLite. However our applications rely heavily on the scale and analytical capabilities of systems like PostgreSQL. 
+- VIAE is purely a Go framework for building custom API layers on the backend. It is not a complete solution. For apps that just need AUTH and CRUD, [Pocketbase](https://github.com/pocketbase/pocketbase) is going to be more than enough. [Pocketbase](https://github.com/pocketbase/pocketbase) already allows you to add custom routes and jobs too! We are simply configuring VIAE to be the CRUD and AUTH parts of the API layer so that we can focus on the services that go along with the API to power our applications.
+- VIAE will expand the dashboard UI with more features that let application owners assess the security of their applicaiton, the nature of the usrs, and configuring caches and databases that can be deployed alongside VIAE.
+
+**For documentation and examples of working with the API, please visit https://pocketbase.io/docs.**
+
 
 > [!WARNING]
-> Please keep in mind that PocketBase is still under active development
-> and therefore full backward compatibility is not guaranteed before reaching v1.0.0.
+> This project is primarily being developed for our own purposes. This is not intended to be a complete package or solution for anyone to use. We also make no guarantee that we will not introduce breaking changes from time to time. 
+> However, we welcome ANYONE to use this framework and power their own applications!
+> We intend to adopt nearly all upstream changes in [Pocketbase](https://github.com/pocketbase/pocketbase). However our needs differ greatly from the vision of the [Pocketbase](https://github.com/pocketbase/pocketbase) maintainers. As such, some features of [Pocketbase](https://github.com/pocketbase/pocketbase) may end up working very differently in VIAE. Whenever the two roadmaps align, we are committed to pushing our changes upstream to the [Pocketbase](https://github.com/pocketbase/pocketbase) project! 
 
 ## API SDK clients
 
-The easiest way to interact with the API is to use one of the official SDK clients:
+All of our changes will remain compatable with the Pocketbase front-end SDKS.
 
 - **JavaScript - [pocketbase/js-sdk](https://github.com/pocketbase/js-sdk)** (_browser and node_)
 - **Dart - [pocketbase/dart-sdk](https://github.com/pocketbase/dart-sdk)** (_web, mobile, desktop_)
 
-## Overview
-
-### Use as standalone app
-
-You could download the prebuilt executable for your platform from the [Releases page](https://github.com/pocketbase/pocketbase/releases).
-Once downloaded, extract the archive and run `./pocketbase serve` in the extracted directory.
-
-The prebuilt executables are based on the [`examples/base/main.go` file](https://github.com/pocketbase/pocketbase/blob/master/examples/base/main.go) and comes with the JS VM plugin enabled by default which allows to extend PocketBase with JavaScript (_for more details please refer to [Extend with JavaScript](https://pocketbase.io/docs/js-overview/)_).
-
-### Use as a Go framework/toolkit
-
-PocketBase is distributed as a regular Go library package which allows you to build
-your own custom app specific business logic and still have a single portable executable at the end.
-
-Here is a minimal example:
-
-0. [Install Go 1.21+](https://go.dev/doc/install) (_if you haven't already_)
-
-1. Create a new project directory with the following `main.go` file inside it:
-    ```go
-    package main
-
-    import (
-        "log"
-        "net/http"
-
-        "github.com/labstack/echo/v5"
-        "github.com/pocketbase/pocketbase"
-        "github.com/pocketbase/pocketbase/apis"
-        "github.com/pocketbase/pocketbase/core"
-    )
-
-    func main() {
-        app := pocketbase.New()
-
-        app.OnBeforeServe().Add(func(e *core.ServeEvent) error {
-            // add new "GET /hello" route to the app router (echo)
-            e.Router.AddRoute(echo.Route{
-                Method: http.MethodGet,
-                Path:   "/hello",
-                Handler: func(c echo.Context) error {
-                    return c.String(200, "Hello world!")
-                },
-                Middlewares: []echo.MiddlewareFunc{
-                    apis.ActivityLogger(app),
-                },
-            })
-
-            return nil
-        })
-
-        if err := app.Start(); err != nil {
-            log.Fatal(err)
-        }
-    }
-    ```
-
-2. To init the dependencies, run `go mod init myapp && go mod tidy`.
-
-3. To start the application, run `go run main.go serve`.
-
-4. To build a statically linked executable, you can run `CGO_ENABLED=0 go build` and then start the created executable with `./myapp serve`.
-
-> [!NOTE]
-> PocketBase embeds SQLite, but doesn't require CGO.
->
-> If CGO is enabled (aka. `CGO_ENABLED=1`), it will use [mattn/go-sqlite3](https://pkg.go.dev/github.com/mattn/go-sqlite3) driver, otherwise - [modernc.org/sqlite](https://pkg.go.dev/modernc.org/sqlite).
-> Enable CGO only if you really need to squeeze the read/write query performance at the expense of complicating cross compilation.
-
-_For more details please refer to [Extend with Go](https://pocketbase.io/docs/go-overview/)._
-
-### Building and running the repo main.go example
-
-To build the minimal standalone executable, like the prebuilt ones in the releases page, you can simply run `go build` inside the `examples/base` directory:
-
-0. [Install Go 1.21+](https://go.dev/doc/install) (_if you haven't already_)
-1. Clone/download the repo
-2. Navigate to `examples/base`
-3. Run `GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build`
-   (_https://go.dev/doc/install/source#environment_)
-4. Start the created executable by running `./base serve`.
-
-Note that the supported build targets by the pure Go SQLite driver at the moment are:
-
-```
-darwin  amd64
-darwin  arm64
-freebsd amd64
-freebsd arm64
-linux   386
-linux   amd64
-linux   arm
-linux   arm64
-linux   ppc64le
-linux   riscv64
-linux   s390x
-windows amd64
-windows arm64
-```
-
-### Testing
-
-PocketBase comes with mixed bag of unit and integration tests.
-To run them, use the standard `go test` command:
-
-```sh
-go test ./...
-```
-
-Check also the [Testing guide](http://pocketbase.io/docs/testing) to learn how to write your own custom application tests.
-
 ## Security
 
-If you discover a security vulnerability within PocketBase, please send an e-mail to **support at pocketbase.io**.
+If you discover a security vulnerability within VIAE, please send an e-mail to **support at fabledfutures.com**.
 
 All reports will be promptly addressed, and you'll be credited accordingly.
 
 ## Contributing
 
-PocketBase is free and open source project licensed under the [MIT License](LICENSE.md).
-You are free to do whatever you want with it, even offering it as a paid service.
+VIAE is free and open source project licensed under the [MIT License](LICENSE.md).
+You are free to do whatever you want with it.
 
-You could help continuing its development by:
-
-- [Contribute to the source code](CONTRIBUTING.md)
-- [Suggest new features and report issues](https://github.com/pocketbase/pocketbase/issues)
-
-PRs for new OAuth2 providers, bug fixes, code optimizations and documentation improvements are more than welcome.
-
-But please refrain creating PRs for _new features_ without previously discussing the implementation details.
-PocketBase has a [roadmap](https://github.com/orgs/pocketbase/projects/2) and I try to work on issues in specific order and such PRs often come in out of nowhere and skew all initial planning with tedious back-and-forth communication.
-
-Don't get upset if I close your PR, even if it is well executed and tested. This doesn't mean that it will never be merged.
-Later we can always refer to it and/or take pieces of your implementation when the time comes to work on the issue (don't worry you'll be credited in the release notes).
+Most contributions should be submitted as PRs to [Pocketbase](https://github.com/pocketbase/pocketbase). However, if you have a features or bug fixes that do not integrate into [Pocketbase](https://github.com/pocketbase/pocketbase)'s vision, feel free to open a PR here. Please bear in mind that we are developing this for our own purposes, and PRs will be accepted under that lense. 
